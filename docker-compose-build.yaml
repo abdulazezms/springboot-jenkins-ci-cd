@@ -4,7 +4,7 @@ services:
 
 
 
-  db_host:
+  mysql:
    container_name: mysql
    image: mysql:5.7
    command:
@@ -23,6 +23,11 @@ services:
     image: "books-manager:$BUILD_TAG"
     build:
       context: .
+    environment:
+      - "DATABASE_HOST=jdbc:mysql://mysql:3306/books-store"
+      - "DATABASE_USERNAME=root"
+      - "DATABASE_PASSWORD=1234"
+      - "SERVER_PORT=8081"
     ports:
       - "8081:8081"
     depends_on:
