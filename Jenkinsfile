@@ -12,6 +12,7 @@ pipeline {
             steps {
                 sh '''
                     chown jenkins:jenkins mvnw
+                    chmod a+x mvnw
                     ./mvnw -DskipTests clean package
                     docker compose -f docker-compose-build.yaml build --no-cache
                    '''
