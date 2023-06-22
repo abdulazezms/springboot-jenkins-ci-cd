@@ -32,7 +32,7 @@ pipeline {
                        sh '''
                            chown jenkins:jenkins mvnw
                            chmod a+x mvnw
-                           docker run mysql:5.7 -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=books_store --name mysql-container
+                           docker run -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=books_store --name mysql-container mysql:5.7
                            ./mvnw -DskipTests clean package
                       '''
                 }
