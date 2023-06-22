@@ -11,7 +11,6 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    cd books-manager
                     ./mvnw -DskipTests clean package
                     docker compose -f docker-compose-build.yaml build --no-cache
                    '''
