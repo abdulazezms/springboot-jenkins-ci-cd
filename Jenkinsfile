@@ -1,4 +1,3 @@
-
 pipeline {
 
     agent any
@@ -6,6 +5,7 @@ pipeline {
       PASS = credentials("cbab8339-af2e-437c-8227-02e90033919e")
 
     }
+
     stages {
 
         stage('Build') {
@@ -22,7 +22,7 @@ pipeline {
                  success {
                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
                 }
-             }
+            }
 
         }
 
@@ -38,10 +38,12 @@ pipeline {
                 }
                  post {
                         always {
-                            // Stop and remove the MySQL container
                             sh 'docker stop mysql-container'
                             sh 'docker rm mysql-container'
+                            junit 'java-repo/target/surefire-reports/*.xml'
+
                         }
-                    }
+                }
        }
+   }
 }
