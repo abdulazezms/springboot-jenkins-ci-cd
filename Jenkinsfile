@@ -26,52 +26,22 @@ pipeline {
 
         }
 
-stage('Test') {
-            steps {
-                // Start MySQL container
-                script {
-                    docker.image('mysql:5.7').withRun('-p 3306:3306 --name mysql-container -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=books_store')
-                    { container ->
-                        // Wait for the MySQL container to start
-                        sh 'sleep 10'
+        stage('Test') {
+                steps {
 
-                        // Run your tests here, making sure to set the environment variables
-                        sh 'export DATABASE_HOST=jdbc:mysql://localhost:3306/books_store'
-                        sh 'export DATABASE_USERNAME=root'
-                        sh 'export DATABASE_PASSWORD=1234'
-
-                        // Run your application's jar file here
-                        sh 'java -jar your-application.jar'
-                    }
+                       sh '''
+                           chown jenkins:jenkins mvnw
+                           chmod a+x mvnw
+                           docker run mysql:5.7 --name mysql-container -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=books_store
+                           ./mvnw -DskipTests clean package
+                      '''
                 }
-            }
-        }
-//         stage('Test') {
-//             steps {
-//                 sh '''
-//                     ./mvnw test
-//                    '''
-//             }
-//
-//             post {
-//                 always {
-//                   junit 'target/surefire-reports/*.xml'
-//                 }
-//             }
-//
-//         }
+                 post {
+                        always {
+                            // Stop and remove the MySQL container
+                            sh 'docker stop mysql-container'
+                            sh 'docker rm mysql-container'
+                        }
+                    }
+       }
 }
-// //         stage('Push') {
-// //             steps {
-// //                 sh 'jenkins/push/push.sh'
-// //             }
-// //         }
-// //
-// //         stage('Deploy') {
-// //             steps {
-// //                 sh 'jenkins/deploy/deploy.sh'
-// //
-// //             }
-// //         }
-//     }
-// }
