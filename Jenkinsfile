@@ -14,7 +14,7 @@ pipeline {
                     chown jenkins:jenkins mvnw
                     chmod a+x mvnw
                     ./mvnw -DskipTests clean package
-                    docker compose -f docker-compose-build.yaml build --no-cache
+                    # docker compose -f docker-compose-build.yaml build --no-cache
                    '''
             }
 
@@ -26,32 +26,52 @@ pipeline {
 
         }
 
-        stage('Test') {
+stage('Test') {
             steps {
-                sh '''
-                    ./mvnw test
-                   '''
-            }
+                // Start MySQL container
+                script {
+                    docker.image('mysql:5.7').withRun('-p 3306:3306 --name mysql-container -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=books_store')
+                    { container ->
+                        // Wait for the MySQL container to start
+                        sh 'sleep 10'
 
-            post {
-                always {
-                  junit 'target/surefire-reports/*.xml'
+                        // Run your tests here, making sure to set the environment variables
+                        sh 'export DATABASE_HOST=jdbc:mysql://localhost:3306/books_store'
+                        sh 'export DATABASE_USERNAME=root'
+                        sh 'export DATABASE_PASSWORD=1234'
+
+                        // Run your application's jar file here
+                        sh 'java -jar your-application.jar'
+                    }
                 }
             }
-
         }
-
-//         stage('Push') {
+//         stage('Test') {
 //             steps {
-//                 sh 'jenkins/push/push.sh'
+//                 sh '''
+//                     ./mvnw test
+//                    '''
 //             }
-//         }
 //
-//         stage('Deploy') {
-//             steps {
-//                 sh 'jenkins/deploy/deploy.sh'
-//
+//             post {
+//                 always {
+//                   junit 'target/surefire-reports/*.xml'
+//                 }
 //             }
+//
 //         }
-    }
 }
+// //         stage('Push') {
+// //             steps {
+// //                 sh 'jenkins/push/push.sh'
+// //             }
+// //         }
+// //
+// //         stage('Deploy') {
+// //             steps {
+// //                 sh 'jenkins/deploy/deploy.sh'
+// //
+// //             }
+// //         }
+//     }
+// }
