@@ -74,5 +74,37 @@ pipeline {
             }
 
        }
+
+
+      stage('Deploy') {
+
+           steps{
+               sh '''
+
+
+               echo "*** Storing image, tag, and password locally ***"
+
+               echo "books-manager" > /tmp/books-manager-cred
+               echo $BUILD_TAG >> /tmp/books-manager-cred
+               echo $PASS >> /tmp/books-manager-cred
+
+               echo "*** Secure copy file to remote machine at prod-user@192.168.100.8:/tmp/books-manager-cred"
+               scp -i /opt/prod /tmp/books-manager-cred prod-user@192.168.100.8:/tmp/books-manager-cred
+
+               echo "Creating the file containing necessary exports to export environment variables in the remote machine"
+
+               echo "*** Secure copy file that triggers the docker compose on the remote machine"
+               scp -i /opt/prod publish.sh prod-user@192.168.100.8:/tmp/books-manager-publish.sh
+
+               echo "*** Execute the file that triggers the docker compose on the remote machine ***"
+               ssh -i /opt/prod prod-user@192.168.100.8 "/tmp/books-manager-publish.sh"
+
+
+
+               '''
+
+           }
+
+      }
    }
 }
