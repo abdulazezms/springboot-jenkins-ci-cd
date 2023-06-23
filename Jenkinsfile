@@ -30,7 +30,7 @@ pipeline {
                 steps {
 
                        sh '''
-                            docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=books_store --name mysql-container -v /db_data:/var/lib/mysql mysql:5.7
+                            docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=books_store --name mysql-container -v /db_data_test:/var/lib/mysql mysql:5.7
                             sleep 15
                             export DATABASE_HOST=jdbc:mysql://192.168.100.117:3306/books_store
                             export DATABASE_PASSWORD=1234
@@ -48,6 +48,31 @@ pipeline {
 
                         }
                 }
+       }
+
+       stage('Push') {
+
+            steps{
+                sh '''
+
+                export IMAGE=books-manager
+
+                echo "*** building the image ***"
+                docker build -t $IMAGE:$BUILD_TAG .
+
+                echo "** Logging in ***"
+                docker login -u atechy -p $PASS
+
+                echo "*** Tagging image ***"
+                docker tag $IMAGE:$BUILD_TAG atechy/$IMAGE:$BUILD_TAG
+
+                echo "*** Pushing image ***"
+                docker push atechy/$IMAGE:$BUILD_TAG
+
+                '''
+
+            }
+
        }
    }
 }
