@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    volumes:
+      - /db_data_deploy:/var/lib/mysql
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=books_store
+    networks:
+      - net
+
+
+
+  web-app:
+    container_name: web-app
+    image: "atechy/$IMAGE:$TAG"
+    environment:
+      - "DATABASE_HOST=jdbc:mysql://mysql:3306/books_store"
+      - "DATABASE_USERNAME=root"
+      - "DATABASE_PASSWORD=1234"
+      - "SERVER_PORT=8020"
+    ports:
+      - "8020:8020"
+    depends_on:
+      - mysql
+    networks:
+      - net
+
+networks:
+  net:
