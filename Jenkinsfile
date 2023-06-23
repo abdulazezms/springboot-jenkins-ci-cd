@@ -40,7 +40,7 @@ pipeline {
                         always {
                             sh 'docker stop mysql-container'
                             sh 'docker rm mysql-container'
-                            junit 'java-repo/target/surefire-reports/*.xml'
+                            junit 'target/surefire-reports/*.xml'
 
                         }
                 }
