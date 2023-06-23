@@ -37,6 +37,9 @@ pipeline {
                             export DATABASE_HOST=jdbc:mysql://192.168.100.117:3306/books_store
                             export DATABASE_PASSWORD=1234
                            ./mvnw test
+                            unset DATABASE_HOST
+                            unset DATABASE_PASSWORD
+
                       '''
                 }
                  post {
