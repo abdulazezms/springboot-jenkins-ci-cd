@@ -94,6 +94,7 @@ pipeline {
                echo "Creating the file containing necessary exports to export environment variables in the remote machine"
 
                echo "*** Secure copy file that triggers the docker compose on the remote machine"
+               chmod a+x publish.sh 
                scp -i /opt/prod publish.sh prod-user@192.168.100.8:/tmp/books-manager-publish.sh
 
                echo "*** Execute the file that triggers the docker compose on the remote machine ***"
